@@ -1,0 +1,16 @@
+{
+    "name": "matiullah/oop-plugin",
+    "description": "this is my testing plugin",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "matiullah31",
+            "email": "mati_ullah31@yahoo.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload":{
+        "psr-4":{"Inc\\":"./inc"}
+    }
+}
