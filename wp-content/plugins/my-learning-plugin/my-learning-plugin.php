@@ -36,6 +36,15 @@ defined( 'ABSPATH' ) or die( 'Hey, what are you doing here? You silly human!' );
 
 class MyLearningPlugin 
 {
+	public function __construct(){
+		add_action( 'init', array($this,'custom_post_type') );
+	}
+
+	public function register(){
+		add_action( 'admin_enqueue_scripts', array($this,'enqueue') );
+		//For frontend scripts 
+		//add_action( 'wp_enqueue_scripts', array($this,'enqueue') );
+	}
 
 	public function activate(){
 		$this->custom_post_type();
@@ -51,14 +60,21 @@ class MyLearningPlugin
 		register_post_type( 'book', array( 'public'=>true,'label'=>'Books' ) );
 	}
 
+	public function enqueue(){
+		wp_enqueue_style( 'my-plugin-style', plugins_url( '/assets/mystyle.css', __FILE__ ), array( '' ), false, 'all' );
+		wp_enqueue_script( 'my-plugin-script', plugins_url( '/assets/myscript.js', __FILE__ ), array( '' ), false, 'all' );
+	}
+
 
 }
 
 if( class_exists( 'MyLearningPlugin' ) ){
 	$myLearningPlugin = new MyLearningPlugin();
+	$myLearningPlugin->register();
 }
 
 //activation 
 register_activation_hook( __FILE__, array($myLearningPlugin,'activate') );
 //deactivation
-register_activation_hook( __FILE__, array($myLearningPlugin,'deactivate') );
+register_deactivation_hook( __FILE__, array($myLearningPlugin,'deactivate') );
+
