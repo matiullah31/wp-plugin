@@ -106,6 +106,15 @@ function twentyseventeen_setup() {
  	 */
 	add_editor_style( array( 'assets/css/editor-style.css', twentyseventeen_fonts_url() ) );
 
+	// Load regular editor styles into the new block-based editor.
+	add_theme_support( 'editor-styles' );
+
+ 	// Load default block styles.
+	add_theme_support( 'wp-block-styles' );
+
+	// Add support for responsive embeds.
+	add_theme_support( 'responsive-embeds' );
+
 	// Define and register starter content to showcase the theme on new sites.
 	$starter_content = array(
 		'widgets' => array(
@@ -415,6 +424,9 @@ function twentyseventeen_scripts() {
 	// Theme stylesheet.
 	wp_enqueue_style( 'twentyseventeen-style', get_stylesheet_uri() );
 
+	// Theme block stylesheet.
+	wp_enqueue_style( 'twentyseventeen-block-style', get_theme_file_uri( '/assets/css/blocks.css' ), array( 'twentyseventeen-style' ), '1.0' );
+
 	// Load the dark colorscheme.
 	if ( 'dark' === get_theme_mod( 'colorscheme', 'light' ) || is_customize_preview() ) {
 		wp_enqueue_style( 'twentyseventeen-colors-dark', get_theme_file_uri( '/assets/css/colors-dark.css' ), array( 'twentyseventeen-style' ), '1.0' );
@@ -458,6 +470,19 @@ function twentyseventeen_scripts() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'twentyseventeen_scripts' );
+
+/**
+ * Enqueue styles for the block-based editor.
+ *
+ * @since Twenty Seventeen 1.8
+ */
+function twentyseventeen_block_editor_styles() {
+	// Block styles.
+	wp_enqueue_style( 'twentyseventeen-block-editor-style', get_theme_file_uri( '/assets/css/editor-blocks.css' ) );
+	// Add custom fonts.
+	wp_enqueue_style( 'twentyseventeen-fonts', twentyseventeen_fonts_url(), array(), null );
+}
+add_action( 'enqueue_block_editor_assets', 'twentyseventeen_block_editor_styles' );
 
 /**
  * Add custom image sizes attribute to enhance responsive image functionality
@@ -560,340 +585,6 @@ function twentyseventeen_widget_tag_cloud_args( $args ) {
 }
 add_filter( 'widget_tag_cloud_args', 'twentyseventeen_widget_tag_cloud_args' );
 
-// My custom page 
-/* this is my custom page fucntions */
-function my_custom_page(){
-global $wpdb;
-// this adds the prefix which is set by the user upon instillation of wordpress
-$table_name1 = "entity_table";
-$table_name2 = "issue_type";
-// this will get the data from your table
-$sql= "select entity.*, issue.* from {$table_name1} as entity inner join {$table_name2} as issue on entity.id =	 issue.entity_id";
-$retrieve_data = $wpdb->get_results($sql);
-//print_me($retrieve_data);
-return $retrieve_data;
-
-}
-
-function get_all_issues(){
-global $wpdb;
-// this adds the prefix which is set by the user upon instillation of wordpress
-$table_name = "issue_type";
-// this will get the data from your table
-$sql= "select DISTINCT(issue_type) from {$table_name}";
-$retrieve_data = $wpdb->get_results($sql);
-//print_me($retrieve_data);
-return $retrieve_data;
-
-}
-
-add_action('wp_footer', 'my_action_javascript' ); // Write our JS below here
-
-function my_action_javascript() { 
- $ajaxurl = admin_url( 'admin-ajax.php' );
-?>
-	
-<script type="text/javascript">	
- 
- var ajax_url = '<?php echo $ajaxurl; ?>';
-
-jQuery(document).ready(function($) {
-	$("#filter-entity-form").on('submit',function(e){
-		e.preventDefault();
-		var entity_name = $('#entity_name').val();
-		var issue_type = $('#issue-type-id').val();
-		//get site url with our custom template
-		var url = '<?php echo site_url()."/my-custom-page/";?>';
-		// append param search param to url
-		real_url = url+'?entity_name='+entity_name+'&issue_type='+issue_type;
-
-		window.location.href=real_url;
-		/*var data = {
-			'action': 'my_action',
-			'data': {entity_name: entity_name, issue_type: issue_type, page:1},
-		};
-		// We can also pass the url value separately from ajaxurl for front end AJAX implementations
-		$.post(ajax_url, data, function(response) {
-			 $(".cvf_universal_container").html(response);
-		});*/
-
-	});
-
-});
-</script>
- <?php
-}
-/**
- *  Get all result 
- */
-function get_custom_template_data($entity_name='',$issue_type='',$start=0,$per_page=3){
-		global $wpdb;
-		$table_name1 = "entity_table";
-		$table_name2 = "issue_type";
-
-       if(!empty($entity_name) && !empty($issue_type)){
-
-        $sql= "select entity.*, issue.* from {$table_name1} as entity inner join {$table_name2} as issue on entity.id =	 issue.entity_id where entity.entity_name like %s and issue.issue_type like %s LIMIT %d, %d";
-        $all_records = $wpdb->get_results($wpdb->prepare($sql,'%'.$wpdb->esc_like($entity_name).'%','%'.$wpdb->esc_like($issue_type).'%', $start, $per_page ) );
-
-     }elseif(!empty($entity_name)){
-
-        $sql= "select entity.*, issue.* from {$table_name1} as entity inner join {$table_name2} as issue on entity.id =	 issue.entity_id where entity.entity_name like %s LIMIT %d, %d";
-        $all_records = $wpdb->get_results($wpdb->prepare($sql,'%'.$wpdb->esc_like($entity_name).'%', $start, $per_page ) );
-
-     }elseif(!empty($issue_type)){
-
-     	 $sql= "select entity.*, issue.* from {$table_name1} as entity inner join {$table_name2} as issue on entity.id = issue.entity_id where issue.issue_type like %s LIMIT %d, %d";
-        $all_records = $wpdb->get_results($wpdb->prepare($sql,'%'.$wpdb->esc_like($issue_type).'%', $start, $per_page ) );
-
-
-     }else {
-    $sql= "select entity.*, issue.* from {$table_name1} as entity inner join {$table_name2} as issue on entity.id =	 issue.entity_id LIMIT %d, %d";
-    $all_records = $wpdb->get_results($wpdb->prepare($sql, $start, $per_page ) );
-     }
-       return $all_records;
-}
-/**
- *  get all data count 
- */
-function get_custom_template_data_count($entity_name='', $issue_type=''){
-			global $wpdb;
-			$table_name1 = "entity_table";
-			$table_name2 = "issue_type";
-
-		   if(!empty($entity_name) && !empty($issue_type)){
-		    $count = $wpdb->get_var($wpdb->prepare("select count(entity.id) from {$table_name1} as entity inner join {$table_name2} as issue on entity.id = issue.entity_id where entity.entity_name like %s and issue.issue_type like %s", '%'.$wpdb->esc_like($entity_name).'%','%'.$wpdb->esc_like($issue_type).'%'));
-
-		 }elseif(!empty($entity_name)){
-		    $count = $wpdb->get_var($wpdb->prepare("select count(entity.id) from {$table_name1} as entity inner join {$table_name2} as issue on entity.id = issue.entity_id where entity.entity_name like %s", '%'.$wpdb->esc_like($entity_name).'%',$issue_type ) );
-
-		 }elseif(!empty($issue_type)){
-		    $count = $wpdb->get_var($wpdb->prepare("select count(entity.id) from {$table_name1} as entity inner join {$table_name2} as issue on entity.id = issue.entity_id where issue.issue_type like %s",'%'.$wpdb->esc_like($issue_type).'%' ) );
-
-		 }else {
-		$count = $wpdb->get_var($wpdb->prepare("select count(entity.id) from {$table_name1} as entity inner join {$table_name2} as issue on entity.id = issue.entity_id", array() ) );
-		 }
-
-         return $count;
-}
-add_action( 'wp_ajax_my_action', 'my_action' );
-add_action( 'wp_ajax_nopriv_my_action', 'my_action' ); 
-function pagination_url(){
-	$paged = get_query_var( 'page', 1 );
-	return $paged;
-}
-add_action( 'load_data', 'load_records', 10, 1 );
-function load_records() {
-    // Set default variables
-    //get page number
-    $page = pagination_url();
-    // get params
-    $url_entity_name = isset($_GET['entity_name'])?$_GET['entity_name']:'';
-    $url_issue_type = isset($_GET['issue_type'])?$_GET['issue_type']:'';
-    $output = '';
-    if(is_int($page)){
-    	
-    	//$data = @$_POST['data'];
-        // Sanitize the received page   
-        $page = !empty($page)?sanitize_text_field($page):1;
-        //isset($data['page'])?sanitize_text_field($data['page']):1;
-        $entity_name = $url_entity_name;
-        $issue_type  = $url_issue_type;
-        // Set the table where we will be querying data
-        $page -= 1;
-        // Set the number of results to display
-        $per_page = 3;
-        $start = $page * $per_page;
-   		$cur_page = $page;
-		// get all data
-        $all_records = get_custom_template_data($entity_name,$issue_type,$start,$per_page);
-        // get data count
-		$count = get_custom_template_data_count($entity_name,$issue_type);    
-        
-         $output = dynamic_html_table($all_records);
-         ajax_pagination($page,$count,$per_page,$cur_page,$output,$entity_name,$issue_type);
-
-    }
-}
-
-function my_action() {
-
-    // Set default variables
-    //get page number
-    $page = pagination_url();
-    $output = '';
-    if(isset($_POST['data']) || is_int($page)){
-
-    	$data = @$_POST['data'];
-        // Sanitize the received page   
-        $page = !empty($page)?sanitize_text_field($page):1;
-        //isset($data['page'])?sanitize_text_field($data['page']):1;
-        $entity_name = sanitize_text_field($data['entity_name']);
-        $issue_type  = sanitize_text_field($data['issue_type']);
-        // Set the table where we will be querying data
-        $page -= 1;
-        // Set the number of results to display
-        $per_page = 3;
-        $start = $page * $per_page;
-   		$cur_page = $page;
-     	// get all data
-		$all_records = get_custom_template_data($entity_name,$issue_type,$start,$per_page);
-		// get data count
-		$count = get_custom_template_data_count($entity_name,$issue_type);
-        
-        
-         $output = dynamic_html_table($all_records);
-         ajax_pagination($page,$count,$per_page,$cur_page,$output,$entity_name, $issue_type);
-
-    }
-    // Always exit to avoid further execution
-    exit;;
-}
-
-function ajax_pagination($page,$count,$per_page,$cur_page,$output,$entity_name='',$issue_type=''){
-		//$page = $page;
-        $cur_page = $page+1;
-        // setting search param for pagination 
-        $search = '';
-        if(!empty($entity_name)){
-        	$search .='&entity_name='.$entity_name;
-        }
-
-        if(!empty($issue_type)){
-        	$search .='&issue_type='.$issue_type;
-        }
-
-        //$page -= 1;
-        // Set the number of results to display
-        //$per_page = $per_page;
-        $previous_btn = true;
-        $next_btn = true;
-        $first_btn = true;
-        $last_btn = true;
-        $p_url =  site_url().'/my-custom-page/'; // link to our custom template
-
-        //$start = $page;
-         // Optional, wrap the output into a container
-       // $output = '';
-        $output = "<div class='cvf-universal-content'>" . $output . "</div><br class = 'clear' />";
-
-        $no_of_paginations = ceil($count / $per_page);
-
-        if ($cur_page >= 7) {
-            $start_loop = $cur_page - 3;
-            if ($no_of_paginations > $cur_page + 3)
-                $end_loop = $cur_page + 3;
-            else if ($cur_page <= $no_of_paginations && $cur_page > $no_of_paginations - 6) {
-                $start_loop = $no_of_paginations - 6;
-                $end_loop = $no_of_paginations;
-            } else {
-                $end_loop = $no_of_paginations;
-            }
-        } else {
-            $start_loop = 1;
-            if ($no_of_paginations > 7)
-                $end_loop = 7;
-            else
-                $end_loop = $no_of_paginations;
-        }
-        $pag_container = '';
-        // Pagination Buttons logic     
-        $pag_container .= "
-        <div class='cvf-universal-pagination'>
-            <ul>";
-          //inital value
-         $param = '?page=1'.$search;
-        if ($first_btn && $cur_page > 1) {
-        	$param = '?page=1'.$search;
-            $pag_container .= "<li p='1' class='active'><a href='".$p_url.$param."'>First</a></li>";
-        } else if ($first_btn) {
-            $pag_container .= "<li p='1' class='inactive'><a href='".$p_url.$param."'>First</a></li>";
-        }
-
-        if ($previous_btn && $cur_page > 1) {
-            $pre = $cur_page - 1;
-            $param = '?page='.$pre.$search;
-            $pag_container .= "<li p='$pre' class='active'><a href='".$p_url.$param."'>Previous</a></li>";
-        } else if ($previous_btn) {
-            $pag_container .= "<li class='inactive'>Previous</li>";
-        }
-        for ($i = $start_loop; $i <= $end_loop; $i++) {
-
-            if ($cur_page == $i){
-            	$param = '?page='.$i.$search;
-                $pag_container .= "<li p='$i' class = 'selected' ><a href='".$p_url.$param."'>{$i}</a></li>";
-            }else{
-            	$param = '?page='.$i.$search;
-                $pag_container .= "<li p='$i' class='active'><a href='".$p_url.$param."'>{$i}</a></li>";
-            }
-        }
-
-        if ($next_btn && $cur_page < $no_of_paginations) {
-            $nex = $cur_page + 1;
-            $param = '?page='.$nex.$search;
-            $pag_container .= "<li p='$nex' class='active'><a href='".$p_url.$param."'>Next</a></li>";
-        } else if ($next_btn) {
-            $pag_container .= "<li class='inactive'>Next</li>";
-        }
-
-        if ($last_btn && $cur_page < $no_of_paginations) {
-        	$param = '?page='.$no_of_paginations.$search;
-            $pag_container .= "<li p='$no_of_paginations' class='active'><a href='".$p_url.$param."'>Last</a></li>";
-        } else if ($last_btn) {
-        	$param = '?page='.$no_of_paginations.$search;
-            $pag_container .= "<li p='$no_of_paginations' class='inactive'><a href='".$p_url.$param."'>Last</a></li>";
-        }
-
-        $pag_container = $pag_container . "
-            </ul>
-        </div>";
-
-        // We echo the final output
-        echo 
-        '<div class = "cvf-pagination-content">' . $output . '</div>' . 
-        '<div class = "cvf-pagination-nav">' . $pag_container . '</div>';
-
-
-}
-function dynamic_html_table($data){
-	
-		$output = '';
-	    $output .= '<table class="table table-bordered">';
-		$output .=  '<thead>';
-		$output .=  '<tr>';
-		$output .=  '<th>Entity Name</th>';
-		$output .=  '<th>Entity Address</th>';
-		$output .=  '<th>Issue type</th>';
-		$output .=  '</tr>';
-		$output .=  '</thead>';
-		$output .=  '<tbody>';
-		if($data){
-			foreach($data as $row): 
-			$output .=  '<tr>';
-			$output .=  '<td>'.$row->entity_name.'</td>';
-			$output .=  '<td>'.$row->entity_address.'</td>';
-			$output .=  '<td>'.$row->issue_type.'</td>';
-			$output .=  '</tr>';
-			 endforeach;
-			 }else {
-		$output .='<tr><td colspan="3" style="text-align:center;"> Record Not Found!</td></tr>';
-			 }
-		$output .=  '</tbody>';
-		$output .=  '</table>';
-		return $output;
-	
-}
-
-
-function print_me($data){
-	echo "<pre>";
-	print_r($data);
-	exit;
-}
-
-
-
-/* this is my custom page functions */
 /**
  * Implement the Custom Header feature.
  */
