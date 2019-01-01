@@ -4,5 +4,8 @@
     "type": "project",
     "license": "GPL",
     "minimum-stability": "dev",
-    "require": {}
+    "require": {},
+    "autoload":{
+    	"psr-4":{"Inc\\":"./inc"}
+    }
 }
