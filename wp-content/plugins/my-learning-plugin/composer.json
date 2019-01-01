@@ -1,0 +1,8 @@
+{
+    "name": "matiullah/my-learning-plugin",
+    "description": "this is my composer base plugin",
+    "type": "project",
+    "license": "GPL",
+    "minimum-stability": "dev",
+    "require": {}
+}
