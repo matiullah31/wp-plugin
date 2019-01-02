@@ -33,67 +33,37 @@ Copyright 2005-2015 Automattic, Inc.
 */
 
 defined( 'ABSPATH' ) or die( 'Hey, what are you doing here? You silly human!' );
-if( !class_exists( 'MyLearningPlugin' ) ){
 
-	class MyLearningPlugin 
-	{
-		public $plugin;
+if( file_exists( dirname(__FILE__).'/vendor/autoload.php') ) {
+	require_once dirname(__FILE__).'/vendor/autoload.php';
 
-		public function __construct(){
-			// add_action( 'init', array($this,'custom_post_type') );
-			// add_action( 'admin_menu',array( $this, 'add_admin_pages' ));
-			$this->plugin = plugin_basename( __FILE__ );
-		}
+}
 
-		public function register(){
-			add_action( 'admin_enqueue_scripts', array($this,'enqueue') );
-			add_action( 'admin_menu',array( $this, 'add_admin_pages' ));
-
-			//To display settings link for plugin 
-			add_filter( "plugin_action_links_{$this->plugin}", array($this,'settings_link') );
-			//For frontend scripts 
-			//add_action( 'wp_enqueue_scripts', array($this,'enqueue') );
-		}
-
-		public function settings_link( $links ) {
-			$settings_link  = '<a href="admin.php?page=my_learning_plugin">Settings</a>';
-			array_push( $links , $settings_link);
-			return $links;
-		}
+// define( 'PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+// define( 'PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+// define( 'PLUGIN' , plugin_basename( __FILE__ ));
 
 
-		public function add_admin_pages(){
-			add_menu_page( 'My Learning Plugin', 'My Plugin' , 'manage_options' , 'my_learning_plugin' , array( $this, 'admin_index'), 'dashicons-store', 110 );
-		}
+function activate_my_plugin() {
 
-		public function admin_index(){
-			require_once plugin_dir_path( __FILE__ ).'templates/admin.php';
-		}
+	Inc\Base\Activate::activate();
+}
 
+register_activation_hook( __FILE__, 'activate_my_plugin');
 
-		public function custom_post_type(){
+	 
+function deactivate_my_plugin() {
 
-			register_post_type( 'book', array( 'public'=>true,'label'=>'Books' ) );
-		}
+	Inc\Base\Deactivate::deactivate();
+}
 
-		public function enqueue(){
-			wp_enqueue_style( 'my-plugin-style', plugins_url( '/assets/mystyle.css', __FILE__ ), array( '' ), false, 'all' );
-			wp_enqueue_script( 'my-plugin-script', plugins_url( '/assets/myscript.js', __FILE__ ), array( '' ), false, 'all' );
-		}
+register_deactivation_hook( __FILE__, 'deactivate_my_plugin');
 
 
-	}
 
+// remember : Inc is namespace and Init is inside Inc namespace 
+if( class_exists( 'Inc\\Init' ) ) {
 
-		$myLearningPlugin = new MyLearningPlugin();
-		$myLearningPlugin->register();
-
-
-	//activation 
-	require_once plugin_dir_path( __FILE__ ).'inc/my-plugin-activation.php';
-	register_activation_hook( __FILE__, array('MyPluginActivation','activate') );
-	//deactivation
-	require_once plugin_dir_path( __FILE__ ).'inc/my-plugin-deactivation.php';
-	register_deactivation_hook( __FILE__, array('MyPluginDeactivation','deactivate') );
+	Inc\Init::register_services();
 
 }
