@@ -15,6 +15,7 @@ namespace Inc\Base;
  	public $plugin_url;
  	public $plugin;
  	public $plugin_basename;
+ 	public $managers = array();
 
  	public function __construct() {
  		// dirname (Location, level deep in the directory) so we are inc\Base: 2 level
@@ -26,5 +27,16 @@ namespace Inc\Base;
  		$this->plugin = $this->plugin_basename . '/' . $this->plugin_basename . '.php';
  		// We can manually assign like this
  		//$this->plugin = ' my-learning-plugin/my-learning-plugin.php';
+ 		$this->managers = array(
+ 				'cpt_manager' => 'Activate CPT Manager',
+ 				'taxonomy_manager'=>'Activate Taxonomy Manager',
+ 				'media_widget'=>'Activate Media Widget',
+ 				'gallery_manager'=>'Activate Gallery Manager',
+ 				'testimonial_manager'=>'Activate Testimonial Manager',
+ 				'templates_manager' => 'Activate Templates Manger',
+ 				'login_manager'=>'Activate Ajax Login/Signup',
+ 				'membership_manager'=>'Activate Membership Manager',
+ 				'chat_manager'=>'Activate Chat Manager'
+ 		);
  	}
  }

@@ -13,7 +13,7 @@
 	<div id="tab-1" class="tab-pane active">
 	 <form method="post" action="options.php">
 	 	<?php 
-	 		settings_fields( 'my_learning_plugin_option_group' ); //option_group
+	 		settings_fields( 'my_learning_plugin_settings' ); //option_group
 	 		do_settings_sections( 'my_learning_plugin' ); // page menu_slug
 	 		submit_button();
 
