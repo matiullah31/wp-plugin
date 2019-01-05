@@ -9,13 +9,15 @@ class ManagerCallbacks extends BaseController
 	public function checkboxSanitize( $input )
 	{
 
+		//var_dump($input);exit;
+
 		$output = array();
 		foreach ($this->managers as $key => $value) {
-			$output[$key] = ( isset($input[$key]) ? true : false );
+			$output[$key] = ( isset($input[$key]) && !empty($input[$key]) ? true : false );
 		}
 
 		return $output;
-		//var_dump($input);exit;
+
 		// return filter_var($input, FILTER_SANITIZE_NUMBER_INT);
 		//return ( isset($input) ? true : false );
 	}
@@ -29,6 +31,7 @@ class ManagerCallbacks extends BaseController
 		$classes = $args['class'];
 		$option_name = $args['option_name'];
 		$checkbox = get_option( $option_name );
-		echo '<div class="' . $classes . '"><input type="checkbox" id="' . $name . '" name="'.$option_name.'[' . $name .']" value="1" class="' . $classes . '" ' . ($checkbox[$name] ? 'checked' : '') . '><label for="' . $name . '"><div> </div></label></div>';
+		$checked = (isset($checkbox[$name]) && !empty($checkbox[$name]) ? true : false);
+		echo '<div class="' . $classes . '"><input type="checkbox" id="' . $name . '" name="'.$option_name.'[' . $name .']" value="1" class="' . $classes . '" ' . ($checked ? 'checked' : '') . '><label for="' . $name . '"><div> </div></label></div>';
 	}
 }
