@@ -85,15 +85,28 @@ class Admin extends BaseController
 	}
 
 	public function setSettings(){
-
-		$args = array();
-		foreach($this->managers as $key => $manager){
-			$args[] = array(
+		//To store the data in the DB in 
+		// As we can name_name and thing we want
+		// Singe Field, optiona_name = my_learning_plugin and option_value = serialize array 
+		// It will look into the data when form is submitted.
+		$args = array(
+			array(
 				'option_group' => 'my_learning_plugin_settings',
-				'option_name' => $key,
+				'option_name' => 'my_learning_plugin',
 				'callback' => array( $this->callbacks_mngr, 'checkboxSanitize' )
-			);
-		}
+			)
+		);
+
+		// $args = array();
+		// foreach($this->managers as $key => $manager){
+		// 	$args[] = array(
+		// 		'option_group' => 'my_learning_plugin_settings',
+		// 		'option_name' => $key,
+		// 		'callback' => array( $this->callbacks_mngr, 'checkboxSanitize' )
+		// 	);
+		// }
+
+
 		// $args = array(
 		// 	array(
 		// 		'option_group' => 'my_learning_plugin_settings',
@@ -196,7 +209,8 @@ class Admin extends BaseController
 				'callback' => array( $this->callbacks_mngr, 'checkboxField' ),
 				'page' => 'my_learning_plugin',
 				'section' => 'my_learning_plugin_admin_index',
-				'args' => array(
+				'args' => array( // in args you pass anything
+					'option_name'=>'my_learning_plugin', 
 					'label_for' => $key,
 					'class' => 'ui-toggle'
 				)
